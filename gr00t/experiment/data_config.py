@@ -341,6 +341,13 @@ class UnitreeG1FullBodyDataConfig(UnitreeG1DataConfig):
     observation_indices = [0]
     action_indices = list(range(16))
 
+class UnitreeG1BodyOnlyTwist2DataConfig(UnitreeG1DataConfig):
+    video_keys = ["video.rgb_left", "video.rgb_right"]
+    state_keys = ["state.root_vel", "state.root_height", "state.root_orientation", "state.root_ang_vel", "state.body"]
+    action_keys = ["action.root_vel", "action.root_height", "action.root_orientation", "action.root_ang_vel", "action.body"]
+    language_keys = ["annotation.human.task_description"]
+    observation_indices = [0]
+    action_indices = list(range(16))
 
 ###########################################################################################
 
@@ -783,6 +790,7 @@ DATA_CONFIG_MAP = {
     "so100_dualcam": So100DualCamDataConfig(),
     "unitree_g1": UnitreeG1DataConfig(),
     "unitree_g1_full_body": UnitreeG1FullBodyDataConfig(),
+    "unitree_g1_body_only_twist2": UnitreeG1BodyOnlyTwist2DataConfig(),
     "oxe_droid": OxeDroidDataConfig(),
     "agibot_genie1": AgibotGenie1DataConfig(),
 }

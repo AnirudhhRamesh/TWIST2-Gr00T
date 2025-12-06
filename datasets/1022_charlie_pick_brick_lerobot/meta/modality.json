@@ -1,0 +1,57 @@
+{
+    "state": {
+        "root_vel": {
+            "start": 0,
+            "end": 2
+        },
+        "root_height": {
+            "start": 2,
+            "end": 3
+        },
+        "root_orientation": {
+            "start": 3,
+            "end": 5
+        },
+        "root_ang_vel": {
+            "start": 5,
+            "end": 6
+        },
+        "body": {
+            "start": 6,
+            "end": 35
+        }
+    },
+    "action": {
+        "root_vel": {
+            "start": 0,
+            "end": 2
+        },
+        "root_height": {
+            "start": 2,
+            "end": 3
+        },
+        "root_orientation": {
+            "start": 3,
+            "end": 5
+        },
+        "root_ang_vel": {
+            "start": 5,
+            "end": 6
+        },
+        "body": {
+            "start": 6,
+            "end": 35
+        }
+    },
+    "video": {
+        "rgb_left": {
+            "original_key": "observation.images.rgb_left"
+        },
+        "rgb_right": {
+            "original_key": "observation.images.rgb_right"
+        }
+    },
+    "annotation": {
+        "human.task_description": "crouch down and pick up the brick on the ground"
+    }
+}

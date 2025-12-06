@@ -77,7 +77,7 @@ class ArgsConfig:
     embodiment_tag: Literal[tuple(EMBODIMENT_TAG_MAPPING.keys())] = "gr1"
     """The embodiment tag for the model."""
 
-    data_config: str = "fourier_gr1_arms_waist"
+    data_config: str = "unitree_g1_body_only_twist2"
     """
     The name of the data config to use, e.g. so100, fourier_gr1_arms_only, unitree_g1, etc.
 
