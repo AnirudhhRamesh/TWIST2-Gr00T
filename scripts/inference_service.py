@@ -74,7 +74,7 @@ class ArgsConfig:
     model_path: str = "nvidia/GR00T-N1.5-3B"
     """Path to the model checkpoint directory."""
 
-    embodiment_tag: Literal[tuple(EMBODIMENT_TAG_MAPPING.keys())] = "gr1"
+    embodiment_tag: Literal[tuple(EMBODIMENT_TAG_MAPPING.keys())] = "new_embodiment"
     """The embodiment tag for the model."""
 
     data_config: str = "unitree_g1_body_only_twist2"

@@ -342,12 +342,54 @@ class UnitreeG1FullBodyDataConfig(UnitreeG1DataConfig):
     action_indices = list(range(16))
 
 class UnitreeG1BodyOnlyTwist2DataConfig(UnitreeG1DataConfig):
-    video_keys = ["video.rgb_left", "video.rgb_right"]
+    video_keys = ["video.rgb_left"]
     state_keys = ["state.root_vel", "state.root_height", "state.root_orientation", "state.root_ang_vel", "state.body"]
     action_keys = ["action.root_vel", "action.root_height", "action.root_orientation", "action.root_ang_vel", "action.body"]
     language_keys = ["annotation.human.task_description"]
     observation_indices = [0]
     action_indices = list(range(16))
+
+    def transform(self) -> ModalityTransform:
+        transforms = [
+            # video transforms
+            VideoToTensor(apply_to=self.video_keys),
+            VideoCrop(apply_to=self.video_keys, scale=0.95),
+            VideoResize(apply_to=self.video_keys, height=224, width=224, interpolation="linear"),
+            VideoColorJitter(
+                apply_to=self.video_keys,
+                brightness=0.3,
+                contrast=0.4,
+                saturation=0.5,
+                hue=0.08,
+            ),
+            VideoToNumpy(apply_to=self.video_keys),
+            # state transforms
+            StateActionToTensor(apply_to=self.state_keys),
+            StateActionTransform(
+                apply_to=self.state_keys,
+                normalization_modes={key: "min_max" for key in self.state_keys},
+            ),
+            # action transforms
+            StateActionToTensor(apply_to=self.action_keys),
+            StateActionTransform(
+                apply_to=self.action_keys,
+                normalization_modes={key: "min_max" for key in self.action_keys},
+            ),
+            # concat transforms
+            ConcatTransform(
+                video_concat_order=self.video_keys,
+                state_concat_order=self.state_keys,
+                action_concat_order=self.action_keys,
+            ),
+            # model-specific transform - INCREASED max_action_dim for 35-dim body
+            GR00TTransform(
+                state_horizon=len(self.observation_indices),
+                action_horizon=len(self.action_indices),
+                max_state_dim=64,
+                max_action_dim=64,  # Increased from 32 to handle 35-dim body
+            ),
+        ]
+        return ComposedModalityTransform(transforms=transforms)
 
 ###########################################################################################
 
