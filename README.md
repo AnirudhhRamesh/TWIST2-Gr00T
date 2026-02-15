@@ -1,3 +1,96 @@
+# TWIST2-Gr00T
+
+> **This repository is adapted from [NVIDIA Isaac GR00T N1.5](https://github.com/NVIDIA/Isaac-GR00T) (branch [`n1.5-release`](https://github.com/NVIDIA/Isaac-GR00T/tree/n1.5-release)) to support fine-tuning and inference for the [TWIST2](https://twist-humanoid.github.io/) full-body humanoid robot.**
+
+---
+
+## Changes from Upstream (NVIDIA/Isaac-GR00T)
+
+This fork extends the original GR00T N1.5 codebase with TWIST2 full-body humanoid support. The following changes were made:
+
+### New Files
+
+- **`scripts/convert_twist2_to_lerobot.py`** — Converts TWIST2 dataset format (episode folders with `data.json` containing `state_body`, `state_hand_left`, `state_hand_right`, `state_neck`, corresponding actions, and stereo RGB images) into the LeRobot-compatible data schema used by GR00T. Produces a 51-dimensional state/action vector: body (35) + hand_left (7) + hand_right (7) + neck (2).
+
+- **`scripts/convert_libero_to_lerobot.py`** — Example Libero-to-LeRobot conversion script added as a reference for other dataset conversions.
+
+- **`scripts/download_data.sh`** — Shell script to batch-download TWIST2 datasets from Hugging Face, extract archives, and convert them to LeRobot format.
+
+### Modified Files
+
+- **`gr00t/experiment/data_config.py`** — Added `UnitreeG1BodyOnlyTwist2DataConfig`, a new data configuration class for TWIST2 body-only control. This defines the modality keys (`video.rgb_left`, body state/action fields), transforms (video augmentation, state/action normalization with min-max scaling), and increases `max_action_dim` from 32 to 64 to accommodate the 35-dim body action space. Registered as `"unitree_g1_body_only_twist2"` in `DATA_CONFIG_MAP`.
+
+- **`scripts/inference_service.py`** — Changed default `embodiment_tag` from `"gr1"` to `"new_embodiment"` and default `data_config` from `"fourier_gr1_arms_waist"` to `"unitree_g1_body_only_twist2"` for TWIST2-oriented workflows.
+
+- **`.gitignore`** — Added `datasets/` and `checkpoints/` directories to prevent committing large data and model files.
+
+---
+
+## Pre-trained Checkpoint
+
+A checkpoint fine-tuned on the full public TWIST2 dataset (8500 steps) is available on Hugging Face:
+
+**[ArnieRamesh/groot-twist2_full-8500](https://huggingface.co/ArnieRamesh/groot-twist2_full-8500)**
+
+You can download it and run inference directly:
+
+```bash
+# Download the checkpoint
+pip install huggingface_hub
+huggingface-cli download ArnieRamesh/groot-twist2_full-8500 --local-dir ./checkpoints/groot-twist2_full-8500
+
+# Run inference with the checkpoint
+python scripts/inference_service.py \
+    --model-path ./checkpoints/groot-twist2_full-8500 \
+    --server
+```
+
+---
+
+## TWIST2 Quick Start
+
+### 1. Download and convert TWIST2 data
+
+```bash
+# Download a single dataset and convert to LeRobot format
+python scripts/convert_twist2_to_lerobot.py \
+    --input_dir ./datasets/1022_charlie_pick_brick \
+    --output_name charlie_pick_brick_lerobot \
+    --output_dir ./datasets \
+    --fps 30 \
+    --image_size 256 256
+
+# Or batch-download and convert all datasets (edit paths in script first)
+bash scripts/download_data.sh
+```
+
+### 2. Fine-tune on TWIST2 data
+
+```bash
+python scripts/gr00t_finetune.py \
+    --dataset-path ./datasets/charlie_pick_brick_lerobot \
+    --num-gpus 1 \
+    --embodiment-tag new_embodiment \
+    --data-config unitree_g1_body_only_twist2
+```
+
+### 3. Run inference
+
+```bash
+# Server
+python scripts/inference_service.py --model-path <MODEL_PATH> --server
+
+# Client
+python scripts/inference_service.py --client
+```
+
+---
+
+## Original README (NVIDIA Isaac GR00T N1.5)
+
+<details>
+<summary>Click to expand the original upstream README</summary>
+
 <div align="center">
 
 
@@ -110,8 +203,8 @@ The focus is on enabling customization of robot behaviors through finetuning.
 Clone the repo:
 
 ```sh
-git clone https://github.com/NVIDIA/Isaac-GR00T
-cd Isaac-GR00T
+git clone https://github.com/AnirudhhRamesh/TWIST2-Gr00T
+cd TWIST2-Gr00T
 ```
 
 Create a new conda environment and install the dependencies. We recommend Python 3.10:
@@ -403,6 +496,7 @@ ffmpeg -version
 
 If you encounter `ValueError: No valid stream found in input file.`, this requires you to use the correct version of `ffmpeg` and `torchcodec`.
 
+</details>
 
 # Contributing
 
